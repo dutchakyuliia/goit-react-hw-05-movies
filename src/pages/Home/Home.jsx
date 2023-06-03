@@ -1,27 +1,42 @@
 import React, { useEffect, useState } from 'react';
 import { fetchTrendingMovies } from 'services/api';
-import * as api from 'services/api';
 import { Link } from 'react-router-dom';
+import Loader from 'components/Loader/Loader';
+import MovieList from 'components/MovieList/MovieList';
 const Home = () => {
-  const [movies, setMovies] = useState([]);
+const [trendingMovies, setTrendingMovies] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
-    api.fetchTrendingMovies().then(response => {
-      return setMovies(response.data.results);
-    });
+    const fetchTrendMovies = async () => {
+      try {
+        setError(false);
+        setIsLoading(true);
+        const { results } = await fetchTrendingMovies();
+        setTrendingMovies(results); 
+      } catch (error) {
+        setError(true);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchTrendMovies();
   }, []);
 
   return (
-    <div>
-      <h1>Trending today</h1>
-      <ul>
-        {movies.map(movie => (
-          <li key={movie.id}>
-            <Link to="/movies/:movieId">{movie.title || movie.name}</Link>
-          </li>
-        ))}
-      </ul>
-    </div>
+    <>
+      {isLoading ? (
+        <Loader />
+      ) : error ? (
+        <p>
+          Sorry, we could not fetch the trending movies. Please try again later.
+        </p>
+      ) : (
+        <MovieList trendingMovies={trendingMovies} />
+      )}
+    </>
   );
 };
 
