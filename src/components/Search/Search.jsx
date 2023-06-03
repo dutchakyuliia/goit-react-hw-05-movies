@@ -1,16 +1,24 @@
-import { React, useState,useEffect  } from "react"
-import { useSearchParams } from 'react-router-dom';
-import * as api from 'services/api';
-const Search = () => {
-    const [searchParams, setSearchParams] = useSearchParams();
-  
-    return (<div>
-        <form role="search">
-            <input type="text" onChange={evt => setSearchParams({ movieId: evt.target.value })} />
-            <button type="submit" onClick={(event) => ( api.fetchSearchMovies(), event.preventDefault())}>Search</button>  
-        </form>
-      
-    </div>)
-}
+import { React, useState, useEffect } from 'react';
+import { toast } from 'react-hot-toast';
 
-export default Search
+const Search = ({ onSubmit }) => {
+  const handleSubmit = e => {
+    e.preventDefault();
+    const query = e.target.elements.query.value;
+    if (!query) {
+      toast.error('Please enter something');
+      return;
+    }
+    onSubmit(query);
+    e.target.reset();
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <input name="query" type="text" placeholder="Search movies" />
+      <button type="submit">Search</button>
+    </form>
+  );
+};
+
+export default Search;
